@@ -17,26 +17,32 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar Android SDK
+      - name: Configurar Android
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar SDK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
       - name: Instalar Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.13-bin.zip
+          unzip -q gradle-8.13-bin.zip
+          echo "$PWD/gradle-8.13/bin" >> $GITHUB_PATH
 
       - name: Descompactar projeto
         run: |
           unzip -q ProcuraServico_Facil_Celular.zip
+          ls -la
 
-      - name: Compilar APK
+      - name: Compilar
         run: |
           cd ProcuraServico_Facil_Celular
           gradle assembleDebug --no-daemon
 
-      - name: Disponibilizar APK
+      - name: Salvar APK
         uses: actions/upload-artifact@v4
         with:
           name: Procura-Servico-APK
